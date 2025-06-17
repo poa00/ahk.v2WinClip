@@ -4,86 +4,107 @@
 ; see docs for other examples here:
 ; http://www.autohotkey.net/~Deo/index.html
 
+#Include <../WinClip_ahk2/WinClipAPI>
 
+class WinClip extends WinClip_base {
 
-class WinClip extends WinClip_base
-{
-    ClipboardFormats := { CF_BITMAP : 2 ;A handle to a bitmap (HBITMAP).
-                                ,CF_DIB : 8  ;A memory object containing a BITMAPINFO structure followed by the bitmap bits.
-                                ,CF_DIBV5 : 17 ;A memory object containing a BITMAPV5HEADER structure followed by the bitmap color space information and the bitmap bits.
-                                ,CF_DIF : 5 ;Software Arts' Data Interchange Format.
-                                ,CF_DSPBITMAP : 0x0082 ;Bitmap display format associated with a private format. The hMem parameter must be a handle to data that can be displayed in bitmap format in lieu of the privately formatted data.
-                                ,CF_DSPENHMETAFILE : 0x008E ;Enhanced metafile display format associated with a private format. The hMem parameter must be a handle to data that can be displayed in enhanced metafile format in lieu of the privately formatted data.
-                                ,CF_DSPMETAFILEPICT : 0x0083 ;Metafile-picture display format associated with a private format. The hMem parameter must be a handle to data that can be displayed in metafile-picture format in lieu of the privately formatted data.
-                                ,CF_DSPTEXT : 0x0081 ;Text display format associated with a private format. The hMem parameter must be a handle to data that can be displayed in text format in lieu of the privately formatted data.
-                                ,CF_ENHMETAFILE : 14 ;A handle to an enhanced metafile (HENHMETAFILE).
-                                ,CF_GDIOBJFIRST : 0x0300 ;Start of a range of integer values for application-defined GDI object clipboard formats. The end of the range is CF_GDIOBJLAST.Handles associated with clipboard formats in this range are not automatically deleted using the GlobalFree function when the clipboard is emptied. Also, when using values in this range, the hMem parameter is not a handle to a GDI object, but is a handle allocated by the GlobalAlloc function with the GMEM_MOVEABLE flag.
-                                ,CF_GDIOBJLAST : 0x03FF ;See CF_GDIOBJFIRST.
-                                ,CF_HDROP : 15 ;A handle to type HDROP that identifies a list of files. An application can retrieve information about the files by passing the handle to the DragQueryFile function.
-                                ,CF_LOCALE : 16 ;The data is a handle to the locale identifier associated with text in the clipboard. When you close the clipboard, if it contains CF_TEXT data but no CF_LOCALE data, the system automatically sets the CF_LOCALE format to the current input language. You can use the CF_LOCALE format to associate a different locale with the clipboard text. An application that pastes text from the clipboard can retrieve this format to determine which character set was used to generate the text. Note that the clipboard does not support plain text in multiple character sets. To achieve this, use a formatted text data type such as RTF instead. The system uses the code page associated with CF_LOCALE to implicitly convert from CF_TEXT to CF_UNICODETEXT. Therefore, the correct code page table is used for the conversion.
-                                ,CF_METAFILEPICT : 3 ;Handle to a metafile picture format as defined by the METAFILEPICT structure. When passing a CF_METAFILEPICT handle by means of DDE, the application responsible for deleting hMem should also free the metafile referred to by the CF_METAFILEPICT handle.
-                                ,CF_OEMTEXT : 7 ;Text format containing characters in the OEM character set. Each line ends with a carriage return/linefeed (CR-LF) combination. A null character signals the end of the data.
-                                ,CF_OWNERDISPLAY : 0x0080 ;Owner-display format. The clipboard owner must display and update the clipboard viewer window, and receive the WM_ASKCBFORMATNAME, WM_HSCROLLCLIPBOARD, WM_PAINTCLIPBOARD, WM_SIZECLIPBOARD, and WM_VSCROLLCLIPBOARD messages. The hMem parameter must be NULL.
-                                ,CF_PALETTE : 9 ;Handle to a color palette. Whenever an application places data in the clipboard that depends on or assumes a color palette, it should place the palette on the clipboard as well.If the clipboard contains data in the CF_PALETTE (logical color palette) format, the application should use the SelectPalette and RealizePalette functions to realize (compare) any other data in the clipboard against that logical palette.When displaying clipboard data, the clipboard always uses as its current palette any object on the clipboard that is in the CF_PALETTE format.
-                                ,CF_PENDATA : 10 ;Data for the pen extensions to the Microsoft Windows for Pen Computing.
-                                ,CF_PRIVATEFIRST : 0x0200 ;Start of a range of integer values for private clipboard formats. The range ends with CF_PRIVATELAST. Handles associated with private clipboard formats are not freed automatically; the clipboard owner must free such handles, typically in response to the WM_DESTROYCLIPBOARD message.
-                                ,CF_PRIVATELAST : 0x02FF ;See CF_PRIVATEFIRST.
-                                ,CF_RIFF : 11 ;Represents audio data more complex than can be represented in a CF_WAVE standard wave format.
-                                ,CF_SYLK : 4 ;Microsoft Symbolic Link (SYLK) format.
-                                ,CF_TEXT : 1 ;Text format. Each line ends with a carriage return/linefeed (CR-LF) combination. A null character signals the end of the data. Use this format for ANSI text.
-                                ,CF_TIFF : 6 ;Tagged-image file format.
-                                ,CF_UNICODETEXT : 13 ;Unicode text format. Each line ends with a carriage return/linefeed (CR-LF) combination. A null character signals the end of the data.
-                                ,CF_WAVE : 12 } ;Represents audio data in one of the standard wave formats, such as 11 kHz or 22 kHz PCM.
+	#Requires AutoHotkey v2.+ 
+
+    ClipboardFormats := { 
+		CF_BITMAP : 2, ;A handle to a bitmap (HBITMAP).
+        CF_DIB : 8,  ;A memory object containing a BITMAPINFO structure followed by the bitmap bits.
+        CF_DIBV5 : 17, ;A memory object containing a BITMAPV5HEADER structure followed by the bitmap color space information and the bitmap bits.
+		CF_DIF : 5, ;Software Arts' Data Interchange Format.
+		CF_DSPBITMAP : 0x0082, ;Bitmap display format associated with a private format. The hMem parameter must be a handle to data that can be displayed in bitmap format in lieu of the privately formatted data.
+		CF_DSPENHMETAFILE : 0x008E, ;Enhanced metafile display format associated with a private format. The hMem parameter must be a handle to data that can be displayed in enhanced metafile format in lieu of the privately formatted data.
+		CF_DSPMETAFILEPICT : 0x0083, ;Metafile-picture display format associated with a private format. The hMem parameter must be a handle to data that can be displayed in metafile-picture format in lieu of the privately formatted data.
+		CF_DSPTEXT : 0x0081, ;Text display format associated with a private format. The hMem parameter must be a handle to data that can be displayed in text format in lieu of the privately formatted data.
+		CF_ENHMETAFILE : 14, ;A handle to an enhanced metafile (HENHMETAFILE).
+		CF_GDIOBJFIRST : 0x0300, ;Start of a range of integer values for application-defined GDI object clipboard formats. The end of the range is CF_GDIOBJLAST.Handles associated with clipboard formats in this range are not automatically deleted using the GlobalFree function when the clipboard is emptied. Also, when using values in this range, the hMem parameter is not a handle to a GDI object, but is a handle allocated by the GlobalAlloc function with the GMEM_MOVEABLE flag.
+		CF_GDIOBJLAST : 0x03FF, ;See CF_GDIOBJFIRST.
+		CF_HDROP : 15, ;A handle to type HDROP that identifies a list of files. An application can retrieve information about the files by passing the handle to the DragQueryFile function.
+		CF_LOCALE : 16, ;The data is a handle to the locale identifier associated with text in the clipboard. When you close the clipboard, if it contains CF_TEXT data but no CF_LOCALE data, the system automatically sets the CF_LOCALE format to the current input language. You can use the CF_LOCALE format to associate a different locale with the clipboard text. An application that pastes text from the clipboard can retrieve this format to determine which character set was used to generate the text. Note that the clipboard does not support plain text in multiple character sets. To achieve this, use a formatted text data type such as RTF instead. The system uses the code page associated with CF_LOCALE to implicitly convert from CF_TEXT to CF_UNICODETEXT. Therefore, the correct code page table is used for the conversion.
+		CF_METAFILEPICT : 3, ;Handle to a metafile picture format as defined by the METAFILEPICT structure. When passing a CF_METAFILEPICT handle by means of DDE, the application responsible for deleting hMem should also free the metafile referred to by the CF_METAFILEPICT handle.
+		CF_OEMTEXT : 7, ;Text format containing characters in the OEM character set. Each line ends with a carriage return/linefeed (CR-LF) combination. A null character signals the end of the data.
+		CF_OWNERDISPLAY : 0x0080, ;Owner-display format. The clipboard owner must display and update the clipboard viewer window, and receive the WM_ASKCBFORMATNAME, WM_HSCROLLCLIPBOARD, WM_PAINTCLIPBOARD, WM_SIZECLIPBOARD, and WM_VSCROLLCLIPBOARD messages. The hMem parameter must be NULL.
+		CF_PALETTE : 9, ;Handle to a color palette. Whenever an application places data in the clipboard that depends on or assumes a color palette, it should place the palette on the clipboard as well.If the clipboard contains data in the CF_PALETTE (logical color palette) format, the application should use the SelectPalette and RealizePalette functions to realize (compare) any other data in the clipboard against that logical palette.When displaying clipboard data, the clipboard always uses as its current palette any object on the clipboard that is in the CF_PALETTE format.
+		CF_PENDATA : 10, ;Data for the pen extensions to the Microsoft Windows for Pen Computing.
+		CF_PRIVATEFIRST : 0x0200, ;Start of a range of integer values for private clipboard formats. The range ends with CF_PRIVATELAST. Handles associated with private clipboard formats are not freed automatically; the clipboard owner must free such handles, typically in response to the WM_DESTROYCLIPBOARD message.
+		CF_PRIVATELAST : 0x02FF, ;See CF_PRIVATEFIRST.
+		CF_RIFF : 11, ;Represents audio data more complex than can be represented in a CF_WAVE standard wave format.
+		CF_SYLK : 4, ;Microsoft Symbolic Link (SYLK) format.
+		CF_TEXT : 1, ;Text format. Each line ends with a carriage return/linefeed (CR-LF) combination. A null character signals the end of the data. Use this format for ANSI text.
+		CF_TIFF : 6, ;Tagged-image file format.
+		CF_UNICODETEXT : 13, ;Unicode text format. Each line ends with a carriage return/linefeed (CR-LF) combination. A null character signals the end of the data.
+		CF_WAVE : 12 ;Represents audio data in one of the standard wave formats, such as 11 kHz or 22 kHz PCM. 
+	}
     
-                           WM_COPY := 0x301
-                                ,WM_CLEAR := 0x0303
-                                ,WM_CUT := 0x0300
-                                ,WM_PASTE := 0x0302
+	WM_SETHOTKEY := 0x0032
+	WM_CUT := 768 ;0x0300  ; Updated WM_CUT value
+	WM_COPY := 769 ;0x0301 ; Updated WM_COPY value
+	WM_PASTE := 770 ;0x0302 ; Updated WM_PASTE value
+	WM_CLEAR := 771 ;0x0303 ; Updated WM_CLEAR value
+	WM_UNDO := 0x0304 ; Updated WM_UNDO value
+	WM_RENDERFORMAT := 0x0305 ; Updated WM_RENDERFORMAT value
+	WM_RENDERALLFORMATS := 0x0306 ; Updated WM_RENDERALLFORMATS value
+	WM_DESTROYCLIPBOARD := 0x0307 ; Updated WM_DESTROYCLIPBOARD value
+	WM_DRAWCLIPBOARD := 0x0308 ; Updated WM_DRAWCLIPBOARD value
+	WM_PAINTCLIPBOARD := 0x0309 ; Updated WM_PAINTCLIPBOARD value
+	WM_VSCROLLCLIPBOARD := 0x030A ; Updated WM_VSCROLLCLIPBOARD value
+	WM_HSCROLLCLIPBOARD := 0x030B ; Updated WM_HSCROLLCLIPBOARD value
+	WM_ASKCBFORMATNAME := 0x030C ; Updated WM_ASKCBFORMATNAME value
+	WM_CHANGECBCHAIN := 0x030D ; Updated WM_CHANGECBCHAIN value
+	WM_QUERYNEWPALETTE := 0x030F ; Updated WM_QUERYNEWPALETTE value
+	WM_PALETTECHANGED := 0x0311 ; Updated WM_PALETTECHANGED value
     
-    skipFormats := {      2      : 0 ;"CF_BITMAP"
-                                ,17     : 0 ;"CF_DIBV5"
-                                ,0x0082 : 0 ;"CF_DSPBITMAP"
-                                ,0x008E : 0 ;"CF_DSPENHMETAFILE"
-                                ,0x0083 : 0 ;"CF_DSPMETAFILEPICT"
-                                ,0x0081 : 0 ;"CF_DSPTEXT"
-                                ,0x0080 : 0 ;"CF_OWNERDISPLAY"
-                                ,3      : 0 ;"CF_METAFILEPICT"
-                                ,7      : 0 ;"CF_OEMTEXT"
-                                ,1      : 0 } ;"CF_TEXT"
-                                                            
-    formatByValue := {    2 : "CF_BITMAP"
-                                ,8 : "CF_DIB"
-                                ,17 : "CF_DIBV5"
-                                ,5 : "CF_DIF"
-                                ,0x0082 : "CF_DSPBITMAP"
-                                ,0x008E : "CF_DSPENHMETAFILE"
-                                ,0x0083 : "CF_DSPMETAFILEPICT"
-                                ,0x0081 : "CF_DSPTEXT"
-                                ,14 : "CF_ENHMETAFILE"
-                                ,0x0300 : "CF_GDIOBJFIRST"
-                                ,0x03FF : "CF_GDIOBJLAST"
-                                ,15 : "CF_HDROP"
-                                ,16 : "CF_LOCALE"
-                                ,3 : "CF_METAFILEPICT"
-                                ,7 : "CF_OEMTEXT"
-                                ,0x0080 : "CF_OWNERDISPLAY"
-                                ,9 : "CF_PALETTE"
-                                ,10 : "CF_PENDATA"
-                                ,0x0200 : "CF_PRIVATEFIRST"
-                                ,0x02FF : "CF_PRIVATELAST"
-                                ,11 : "CF_RIFF"
-                                ,4 : "CF_SYLK"
-                                ,1 : "CF_TEXT"
-                                ,6 : "CF_TIFF"
-                                ,13 : "CF_UNICODETEXT"
-                                ,12 : "CF_WAVE" }
+    skipFormats := {
+		0x0080 	: 0, 	;"CF_OWNERDISPLAY"
+		0x0081 	: 0, 	;"CF_DSPTEXT"
+		0x0082 	: 0, 	;"CF_DSPBITMAP"
+		0x0083 	: 0, 	;"CF_DSPMETAFILEPICT"
+		0x008E 	: 0, 	;"CF_DSPENHMETAFILE"
+		1 		: 0, 	;"CF_TEXT"
+		17 		: 0, 	;"CF_DIBV5"
+		2 		: 0, 	;"CF_BITMAP"
+		3 		: 0, 	;"CF_METAFILEPICT"
+		7 		: 0 	;"CF_OEMTEXT"
+	} 
+
+    formatByValue := {
+		0x0080 : "CF_OWNERDISPLAY",
+		0x0081 : "CF_DSPTEXT",
+		0x0082 : "CF_DSPBITMAP",
+		0x0083 : "CF_DSPMETAFILEPICT",
+		0x008E : "CF_DSPENHMETAFILE",
+		0x0200 : "CF_PRIVATEFIRST",
+		0x0300 : "CF_GDIOBJFIRST",
+		0x03FF : "CF_GDIOBJLAST",
+		10 : "CF_PENDATA",
+		14 : "CF_ENHMETAFILE",
+		15 : "CF_HDROP",
+		16 : "CF_LOCALE",
+		17 : "CF_DIBV5",
+		2 : "CF_BITMAP",
+		3 : "CF_METAFILEPICT",
+		5 : "CF_DIF",
+		7 : "CF_OEMTEXT",
+		8 : "CF_DIB",
+		9 : "CF_PALETTE",
+        0x02FF : "CF_PRIVATELAST",
+        1 : "CF_TEXT",
+        11 : "CF_RIFF",
+        12 : "CF_WAVE",
+        13 : "CF_UNICODETEXT",
+        4 : "CF_SYLK",
+        6 : "CF_TIFF",
+	}
     
     __New()
     {
         this.isinstance := 1
         this.allData := ""
     }
- 
+
     _toclipboard( &data, size )
     {
         if !WinClipAPI.OpenClipboard()
@@ -514,18 +535,18 @@ class WinClip extends WinClip_base
         return strget( &out_data, out_size, "UTF-8" )
     }
     
-    SetRTF( textData )
-    {
+    SetRTF( textData ) {
         if ( textData = "" )
             return 0
         clipSize :=  this._fromclipboard( &clipData )
-        if !( clipSize := this._setRTF( &clipData, clipSize, textData ) )
+        if !( clipSize := this._setRTF( &clipData, clipSize, textData ) ){
                     return 0
-        return this._toclipboard( clipData, clipSize )
+		}
+        ; return this._toclipboard( clipData, clipSize )
+        return this._toclipboard( &clipData, clipSize )
     }
     
-    iSetRTF( textData )
-    {
+    iSetRTF( textData ) {
         if ( textData = "" )
             return 0
         this._IsInstance( A_ThisFunc )
@@ -535,8 +556,7 @@ class WinClip extends WinClip_base
         return this._setClipData( &clipData, clipSize )
     }
 
-    _setRTF( &clipData, clipSize, textData )
-    {
+    _setRTF( &clipData, clipSize, textData ) {
         objFormats := this._parseClipboardData( &clipData, clipSize )
         uFmt := WinClipAPI.RegisterClipboardFormat( "Rich Text Format" )
         objFormats[ uFmt ] := {}
@@ -717,18 +737,16 @@ class WinClip extends WinClip_base
         return this._setClipData( &clipData, clipSize )
     }
     
-    AppendFiles( files, isCut := 0 )
-    {
+    AppendFiles( files, isCut := 0 ) {
         if ( files = "" )
             return 0
         clipSize := this._fromclipboard( &clipData )
         if !( clipSize := this._setFiles( &clipData, clipSize, files, 1, isCut ) )
             return 0
-        return this._toclipboard( clipData, clipSize )
+        return this._toclipboard( &clipData, clipSize )
     }
     
-    iAppendFiles( files, isCut := 0 )
-    {
+    iAppendFiles( files, isCut := 0 ) {
         this._IsInstance( A_ThisFunc )
         if ( files = "" )
             return 0
@@ -738,8 +756,7 @@ class WinClip extends WinClip_base
         return this._setClipData( &clipData, clipSize )
     }
     
-    GetFiles()
-    {
+    GetFiles() {
         if !( clipSize := this._fromclipboard( &clipData ) )
             return ""
         if !( out_size := this._getFormatData( &out_data, &clipData, clipSize, this.ClipboardFormats.CF_HDROP ) )
@@ -747,8 +764,7 @@ class WinClip extends WinClip_base
         return this._getFiles( out_data )
     }
     
-    iGetFiles()
-    {
+    iGetFiles() {
         this._IsInstance( A_ThisFunc )
         if !( clipSize := this._getClipData( &clipData ) )
             return ""
@@ -757,22 +773,23 @@ class WinClip extends WinClip_base
         return this._getFiles( out_data )
     }
     
-    _getFormatData( &out_data, &data, size, needleFormat )
-    {
+	; data is Buffer()
+    _getFormatData( &out_data, &data, size, needleFormat ) {
         needleFormat := (WinClipAPI.IsInteger( needleFormat ) ? needleFormat : WinClipAPI.RegisterClipboardFormat( needleFormat ))
-        if !needleFormat
+        if !needleFormat{
             return 0
+		}
         offset := 0
-        while ( offset < size )
-        {
-            if !( fmt := NumGet( data, offset, "UInt" ) )
+        while ( offset < size ) {
+            if !( fmt := NumGet( data, offset, "UInt" ) ){
                 break
+			}
             offset += 4
-            if !( dataSize := NumGet( data, offset, "UInt" ) )
+            if !( dataSize := NumGet( data, offset, "UInt" ) ){
                 break
+			}
             offset += 4
-            if ( fmt == needleFormat )
-            {
+            if ( fmt == needleFormat ) {
                 out_data := Buffer( dataSize, 0 )
                 WinClipAPI.memcopy( out_data.ptr, data.ptr + offset, dataSize )
                 return dataSize
@@ -782,8 +799,7 @@ class WinClip extends WinClip_base
         return 0
     }
     
-    _DIBtoHBITMAP( &dibData )
-    {
+    _DIBtoHBITMAP( &dibData ) {
         ;http://ebersys.blogspot.com/2009/06/how-to-convert-dib-to-bitmap.html
         pPix := WinClipAPI.GetPixelInfo( &dibData ) ; should be Buffer() ?
         gdip_token := WinClipAPI.Gdip_Startup()
@@ -794,112 +810,138 @@ class WinClip extends WinClip_base
         return hBitmap
     }
     
-    GetBitmap()
-    {
-        if !( clipSize := this._fromclipboard( &clipData ) )
+    GetBitmap() {
+        if !( clipSize := this._fromclipboard( &clipData ) ){
             return ""
-        if !( out_size := this._getFormatData( &out_data, &clipData, clipSize, this.ClipboardFormats.CF_DIB ) )
+		}
+        if !( out_size := this._getFormatData( &out_data, &clipData, clipSize, this.ClipboardFormats.CF_DIB ) ){
             return ""
+		}
         return this._DIBtoHBITMAP( &out_data )
     }
     
-    iGetBitmap()
-    {
+    iGetBitmap() {
         this._IsInstance( A_ThisFunc )
-        if !( clipSize := this._getClipData( &clipData ) )
+        if !( clipSize := this._getClipData( &clipData ) ) {
             return ""
-        if !( out_size := this._getFormatData( &out_data, &clipData, clipSize, this.ClipboardFormats.CF_DIB ) )
+		}
+        if !( out_size := this._getFormatData( &out_data, &clipData, clipSize, this.ClipboardFormats.CF_DIB ) ){
             return ""
+		}
         return this._DIBtoHBITMAP( &out_data )
     }
     
-    _BITMAPtoDIB( bitmap, &DIB )
-    {
-        A_ThisLabel := ""
-        if !bitmap
-            return 0
-        if !WinClipAPI.IsInteger( bitmap )
-        {
-            gdip_token := WinClipAPI.Gdip_Startup()
-            DllCall("gdiplus\GdipCreateBitmapFromFileICM", "wstr", bitmap, "Ptr*", &pBitmap:=0 )
-            DllCall("gdiplus\GdipCreateHBITMAPFromBitmap", "Ptr", pBitmap, "Ptr*", &hBitmap:=0, "int", 0xffffffff )
-            DllCall("gdiplus\GdipDisposeImage", "Ptr", pBitmap)
-            WinClipAPI.Gdip_Shutdown( gdip_token )
-            bmMade := 1
-        }
-        else
-            hBitmap := bitmap, bmMade := 0
-        if !hBitmap
-                return 0
-        ;http://www.codeguru.com/Cpp/G-M/bitmap/article.php/c1765
-        if !( hdc := DllCall( "GetDC", "Ptr", 0 ) )
-            goto _BITMAPtoDIB_cleanup
-        hPal := DllCall( "GetStockObject", "UInt", 15 ) ;DEFAULT_PALLETE
-        hPal := DllCall( "SelectPalette", "ptr", hdc, "ptr", hPal, "Uint", 0 )
-        DllCall( "RealizePalette", "ptr", hdc )
-        size := DllCall( "GetObject", "Ptr", hBitmap, "Uint", 0, "ptr", 0 )
-        bm := Buffer( size, 0 )
-        DllCall( "GetObject", "Ptr", hBitmap, "Uint", size, "ptr", bm.ptr )
-        biBitCount := NumGet( bm, 16, "UShort" )*NumGet( bm, 18, "UShort" )
-        nColors := (1 << biBitCount)
-    if ( nColors > 256 ) 
-        nColors := 0
-    bmiLen  := 40 + nColors * 4
-        bmi := Buffer( bmiLen, 0 )
-        ;BITMAPINFOHEADER initialization
-        NumPut( "UInt", 40, bmi, 0 )
-        NumPut( "UInt", NumGet( bm, 4, "Uint" ), bmi, 4 )   ;width
-        NumPut( "UInt", biHeight := NumGet( bm, 8, "Uint" ), bmi, 8 ) ;height
-        NumPut( "UShort", 1, bmi, 12 )
-        NumPut( "UShort", biBitCount, bmi, 14 )
-        NumPut( "UInt", 0, bmi, 16 ) ;compression must be BI_RGB
-
-        ; Get BITMAPINFO. 
-        if !DllCall("GetDIBits"
-                            ,"ptr",hdc
-                            ,"ptr",hBitmap
-                            ,"uint",0 
-                            ,"uint",biHeight
-                            ,"ptr",0      ;lpvBits 
-                            ,"uptr",bmi.ptr  ;lpbi 
-                            ,"uint",0)    ;DIB_RGB_COLORS
-            goto _BITMAPtoDIB_cleanup
-        biSizeImage := NumGet( bmi, 20, "UInt" )
-        if ( biSizeImage = 0 )
-        {
-            biBitCount := numget( bmi, 14, "UShort" )
-            biWidth := numget( bmi, 4, "UInt" )
-            biHeight := numget( bmi, 8, "UInt" )
-            biSizeImage := (((( biWidth * biBitCount + 31 ) & ~31 ) >> 3 ) * biHeight )
-            ;~ dwCompression := numget( bmi, 16, "UInt" )
-            ;~ if ( dwCompression != 0 ) ;BI_RGB
-                ;~ biSizeImage := ( biSizeImage * 3 ) / 2
-            numput( "UInt", biSizeImage, bmi, 20 )
-        }
-        DIBLen := bmiLen + biSizeImage
-        DIB := Buffer( DIBLen, 0 )
-        WinClipAPI.memcopy( DIB.ptr, bmi.ptr, bmiLen )
-        if !DllCall("GetDIBits"
-                            ,"ptr",hdc
-                            ,"ptr",hBitmap
-                            ,"uint",0 
-                            ,"uint",biHeight
-                            ,"ptr",DIB.ptr + bmiLen     ;lpvBits 
-                            ,"ptr",DIB.ptr  ;lpbi 
-                            ,"uint",0) {    ;DIB_RGB_COLORS
-            A_ThisLabel := "_BITMAPtoDIB_cleanup"
-            goto _BITMAPtoDIB_cleanup
-        }
-_BITMAPtoDIB_cleanup:
-        if bmMade
-            DllCall( "DeleteObject", "ptr", hBitmap )
-        DllCall( "SelectPalette", "ptr", hdc, "ptr", hPal, "Uint", 0 )
-        DllCall( "RealizePalette", "ptr", hdc )
-        DllCall("ReleaseDC","ptr",hdc)
-        if ( A_ThisLabel = "_BITMAPtoDIB_cleanup" )
-            return 0
-        return DIBLen
-    }
+	/**
+	 * @description Converts a bitmap to DIB (Device Independent Bitmap) format
+	 * @param {Integer|String} bitmap Handle to bitmap or path to image file
+	 * @param {Buffer} &DIB Output buffer for the DIB data
+	 * @returns {Integer} Size of the DIB data or 0 on failure
+	 */
+	_BITMAPtoDIB(bitmap, &DIB) {
+		A_ThisLabel := ""
+		if (!bitmap) {
+			return 0
+		}
+		
+		if (!WinClipAPI.IsInteger(bitmap)) {
+			gdip_token := WinClipAPI.Gdip_Startup()
+			DllCall("gdiplus\GdipCreateBitmapFromFileICM", "wstr", bitmap, "Ptr*", &pBitmap:=0)
+			DllCall("gdiplus\GdipCreateHBITMAPFromBitmap", "Ptr", pBitmap, "Ptr*", &hBitmap:=0, "int", 0xffffffff)
+			DllCall("gdiplus\GdipDisposeImage", "Ptr", pBitmap)
+			WinClipAPI.Gdip_Shutdown(gdip_token)
+			bmMade := 1
+		} else {
+			hBitmap := bitmap, bmMade := 0
+		}
+		
+		if (!hBitmap) {
+			return 0
+		}
+		
+		; http://www.codeguru.com/Cpp/G-M/bitmap/article.php/c1765
+		if (!(hdc := DllCall("GetDC", "Ptr", 0))) {
+			goto _BITMAPtoDIB_cleanup
+		}
+		
+		hPal := DllCall("GetStockObject", "UInt", 15) ; DEFAULT_PALETTE
+		hPal := DllCall("SelectPalette", "ptr", hdc, "ptr", hPal, "Uint", 0)
+		DllCall("RealizePalette", "ptr", hdc)
+		
+		size := DllCall("GetObject", "Ptr", hBitmap, "Uint", 0, "ptr", 0)
+		bm := Buffer(size, 0)
+		DllCall("GetObject", "Ptr", hBitmap, "Uint", size, "ptr", bm.ptr)
+		
+		biBitCount := NumGet(bm, 16, "UShort") * NumGet(bm, 18, "UShort")
+		nColors := (1 << biBitCount)
+		if (nColors > 256) {
+			nColors := 0
+		}
+		
+		bmiLen := 40 + nColors * 4
+		bmi := Buffer(bmiLen, 0)
+		
+		; BITMAPINFOHEADER initialization
+		NumPut("UInt", 40, bmi, 0)
+		NumPut("UInt", NumGet(bm, 4, "Uint"), bmi, 4)   ; width
+		NumPut("UInt", biHeight := NumGet(bm, 8, "Uint"), bmi, 8) ; height
+		NumPut("UShort", 1, bmi, 12)
+		NumPut("UShort", biBitCount, bmi, 14)
+		NumPut("UInt", 0, bmi, 16) ; compression must be BI_RGB
+	
+		; Get BITMAPINFO
+		if (!DllCall("GetDIBits",
+					"ptr", hdc,
+					"ptr", hBitmap,
+					"uint", 0,
+					"uint", biHeight,
+					"ptr", 0,          ; lpvBits 
+					"uptr", bmi.ptr,   ; lpbi 
+					"uint", 0)) {      ; DIB_RGB_COLORS
+			goto _BITMAPtoDIB_cleanup
+		}
+		
+		biSizeImage := NumGet(bmi, 20, "UInt")
+		if (biSizeImage = 0) {
+			biBitCount := NumGet(bmi, 14, "UShort")
+			biWidth := NumGet(bmi, 4, "UInt")
+			biHeight := NumGet(bmi, 8, "UInt")
+			biSizeImage := ((((biWidth * biBitCount + 31) & ~31) >> 3) * biHeight)
+			; dwCompression := NumGet(bmi, 16, "UInt")
+			; if (dwCompression != 0) ; BI_RGB
+			; biSizeImage := (biSizeImage * 3) / 2
+			NumPut("UInt", biSizeImage, bmi, 20)
+		}
+		
+		DIBLen := bmiLen + biSizeImage
+		DIB := Buffer(DIBLen, 0)
+		WinClipAPI.memcopy(DIB.ptr, bmi.ptr, bmiLen)
+		
+		if (!DllCall("GetDIBits",
+					"ptr", hdc,
+					"ptr", hBitmap,
+					"uint", 0,
+					"uint", biHeight,
+					"ptr", DIB.ptr + bmiLen,  ; lpvBits 
+					"ptr", DIB.ptr,           ; lpbi 
+					"uint", 0)) {             ; DIB_RGB_COLORS
+			A_ThisLabel := "_BITMAPtoDIB_cleanup"
+			goto _BITMAPtoDIB_cleanup
+		}
+		
+		_BITMAPtoDIB_cleanup:
+		if (bmMade) {
+			DllCall("DeleteObject", "ptr", hBitmap)
+		}
+		DllCall("SelectPalette", "ptr", hdc, "ptr", hPal, "Uint", 0)
+		DllCall("RealizePalette", "ptr", hdc)
+		DllCall("ReleaseDC", "ptr", hdc)
+		
+		if (A_ThisLabel = "_BITMAPtoDIB_cleanup") {
+			return 0
+		}
+		
+		return DIBLen
+	}
     
     _setBitmap( &DIB, DIBSize, &clipData, clipSize )
     {
